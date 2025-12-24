@@ -1,0 +1,58 @@
+<header class="navbar">
+  <div class="nav-left">
+    <span class="nav-title">{{ title() }}</span>
+  </div>
+
+  <div class="nav-center">
+    <div class="agent-status">
+      <span>Status:</span>
+      <select [(ngModel)]="agentStatus" (change)="updateStatus(agentStatus)">
+        <option value="Available">Available</option>
+        <option value="Busy">Busy</option>
+        <option value="Break">Break</option>
+        <option value="Lunch">Lunch Break</option>
+      </select>
+    </div>
+
+    <div class="call-controls" *ngIf="callState === 'Ringing'">
+      <button class="accept-btn" (click)="acceptCall()">Accept</button>
+      <button class="reject-btn" (click)="rejectCall()">Reject</button>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <div class="dialpad-wrapper">
+      <button class="dialpad-toggle" (click)="toggleDialPad()">Dialed Pad</button>
+      <div class="dialpad" *ngIf="showDialPad">
+        <div class="dial-display">{{ dialedNumber || 'Enter number...' }}</div>
+        <div class="dial-actions">
+          <button class="call-btn" (click)="makeCall()" [disabled]="!dialedNumber">Call</button>
+          <button class="clear-btn" (click)="clearNumber()">Clear</button>
+        </div>
+        <div class="dial-row">
+          <button (click)="dial('1')">1</button>
+          <button (click)="dial('2')">2</button>
+          <button (click)="dial('3')">3</button>
+        </div>
+        <div class="dial-row">
+          <button (click)="dial('4')">4</button>
+          <button (click)="dial('5')">5</button>
+          <button (click)="dial('6')">6</button>
+        </div>
+        <div class="dial-row">
+          <button (click)="dial('7')">7</button>
+          <button (click)="dial('8')">8</button>
+          <button (click)="dial('9')">9</button>
+        </div>
+        <div class="dial-row">
+          <button (click)="dial('+')">+</button>
+          <button (click)="dial('0')">0</button>
+          <button (click)="dial('#')">#</button>
+        </div>
+      </div>
+    </div>
+
+    <button (click)="onLogout()" class="userbutton logout-btn">Logout</button>
+  </div>
+   <div #ccpContainer id="ccp-container" style="display:none;"></div>
+</header>
