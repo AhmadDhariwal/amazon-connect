@@ -1,4 +1,6 @@
 <header class="navbar">
+     <div #ccpContainer id="ccp-container" style="display:none;"></div>
+
   <div class="nav-left">
     <span class="nav-title">{{ title() }}</span>
   </div>
@@ -13,10 +15,19 @@
         <option value="Lunch">Lunch Break</option>
       </select>
     </div>
+   <!-- Add this button temporarily for testing
+<button (click)="testAgentStatus()" style="background:orange;color:white;padding:5px;">
+  Test Agent Status
+</button>
 
-    <div class="call-controls" *ngIf="callState === 'Ringing'">
+Make sure this shows current state
+<div style="background:yellow;padding:5px;margin:5px;">
+  Debug: callState = "{{ callState }}" | hasIncomingContact = {{ !!incomingContact }}
+</div> -->
+
+    <div class="call-controls" *ngIf="callState === 'Ringing'"  >
       <button class="accept-btn" (click)="acceptCall()">Accept</button>
-      <button class="reject-btn" (click)="rejectCall()">Reject</button>
+      <button class="reject-btn"   (click)="rejectCall()">Reject</button>
     </div>
   </div>
 
@@ -54,5 +65,4 @@
 
     <button (click)="onLogout()" class="userbutton logout-btn">Logout</button>
   </div>
-   <div #ccpContainer id="ccp-container" style="display:none;"></div>
 </header>

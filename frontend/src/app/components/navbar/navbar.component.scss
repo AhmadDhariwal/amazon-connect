@@ -55,7 +55,7 @@
   gap: 10px;
 }
 
-.accept-btn, .reject-btn {
+.accept-btn, .reject-btn, .end-call-btn {
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
@@ -81,6 +81,16 @@
 }
 
 .reject-btn:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+}
+
+.end-call-btn {
+  background: #e74c3c;
+  color: white;
+}
+
+.end-call-btn:hover {
   background: #c0392b;
   transform: translateY(-1px);
 }
