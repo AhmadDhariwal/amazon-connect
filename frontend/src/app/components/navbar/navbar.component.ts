@@ -65,7 +65,7 @@ export class NavbarComponent implements OnInit {
     handleLogoutButtonClick() : void  {
         if (!this.agentObj) return;
 
- // const agent = new connect.Agent();
+  const agent = new connect.Agent();
   if (this.agentObj.getState().type !== connect.AgentStatusType.OFFLINE) {
     this.onLogout();
   } else {
