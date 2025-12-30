@@ -25,6 +25,7 @@ export class NavbarComponent implements OnInit {
          callState = '';
          showDialPad = false;
          dialedNumber = '';
+         currentContact: any = null;
 
        incomingContact: any = null;
        agentObj: any = null;
@@ -42,14 +43,24 @@ export class NavbarComponent implements OnInit {
 
   connect.core.initCCP(this.ccpContainer.nativeElement, {
     ccpUrl: "https://ccs123.my.connect.aws/ccp-v2/",
-    loginPopup: true,
-    softphone: { allowFramedSoftphone: true }
+    loginPopup: false,
+    // loginPopupAutoClose: true,
+    softphone: {
+      allowFramedSoftphone: true,
+     disableRingtone: false
+    }
   });
 
    setTimeout(() => {
     this.registerAgent();
     this.listenForIncomingCalls();
   }, 2000);
+//   connect.core.onInitialized(() => {
+//   console.log("CCP fully initialized");
+//   this.registerAgent();
+//   this.listenForIncomingCalls();
+// });
+
 
 
 
@@ -165,18 +176,18 @@ registerAgent() {
     }
       const stateMapping: { [key: string]: string } = {
     'Available': 'Available',
-    'Busy': 'Busy',
+    'Busy': 'Offline',
 
   };
 
-  const mappedStateName = stateMapping[stateName] || stateName;
+  const mappedStateName = stateMapping[stateName] ;
 
     const state = this.agentObj.getAgentStates()
       .find((s: any) => s.name === mappedStateName || s.type === mappedStateName);
 
     if (state) {
       this.agentObj.setState(state, {
-        success: () => console.log('Agent state updated:', stateName),
+        success: () => console.log('Agent state updated:', mappedStateName),
         failure: (err: any) => console.error('State change failed', err)
       });
     }
@@ -235,118 +246,15 @@ registerAgent() {
   //   });
   // }
 
-  // listenForIncomingCalls() {
-  // console.log('🎧 Setting up call listeners...');
-
-  // connect.contact((contact: any) => {
-  //   console.log('📞 New contact detected!');
-  //   console.log('Contact ID:', contact.getContactId());
-  //   console.log('Contact Type:', contact.getType());
-  //   console.log('Contact State:', contact.getState());
-
-  //   // Log ALL contact types to see what's coming through
-  //   console.log('Is Voice?', contact.getType() === connect.ContactType.VOICE);
-  //   console.log('ContactType.VOICE constant:', connect.ContactType.VOICE);
-
-  //   if (contact.getType() !== connect.ContactType.VOICE) {
-  //     console.log('❌ Ignoring non-voice contact');
-  //     return;
-  //   }
-
-  //   console.log('✅ Voice contact - setting up listeners');
-
-  //   contact.onIncoming(() => {
-  //     console.log('🔔 INCOMING CALL EVENT FIRED!');
-  //     console.log('Setting callState to Ringing');
-  //     this.callState = 'Ringing';
-  //     this.incomingContact = contact;
-
-  //     // Force Angular change detection
-  //     setTimeout(() => {
-  //       console.log('Current callState:', this.callState);
-  //       console.log('Has incomingContact:', !!this.incomingContact);
-  //     }, 100);
-  //   });
-
-  //   contact.onConnecting(() => {
-  //     console.log('📱 Call connecting...');
-  //     this.callState = 'Connecting';
-  //   });
-
-  //   contact.onConnected(() => {
-  //     console.log('✅ Call connected!');
-  //     this.callState = 'Connected';
-  //   });
-
-  //   contact.onEnded(() => {
-  //     console.log('📴 Call ended');
-  //     this.callState = '';
-  //     this.incomingContact = null;
-  //   });
-
-  //   // Add more event listeners to catch everything
-  //   contact.onRefresh(() => {
-  //     console.log('🔄 Contact refreshed');
-  //   });
-
-  //   contact.onDestroy(() => {
-  //     console.log('💥 Contact destroyed');
-  //   });
-  // });
-//}
-
-// listenForIncomingCalls() {
-//   console.log(' Setting up call listeners...');
-
-//   connect.contact((contact: any) => {
-//     console.log(' New contact detected!');
-//     console.log('Contact ID:', contact.getContactId());
-//     console.log('Contact Type:', contact.getType());
-//     console.log('Contact State:', contact.getState());
-
-//     if (contact.getType() !== connect.ContactType.VOICE) {
-//       console.log(' Ignoring non-voice contact');
-//       return;
-//     }
-
-//     console.log('Voice contact - setting up listeners');
-
-//     contact.onIncoming(() => {
-//       try {
-//         console.log('INCOMING CALL EVENT FIRED!');
-//         console.log('Contact IDD:', contact.getContactId());
-
-//         // Use NgZone for reliable UI updates
-//         this.ngZone.run(() => {
-//           this.callState = 'Ringing';
-//           this.incomingContact = contact;
-//         });
-//       } catch (error) {
-//         console.error('Error in onIncoming:', error);
-//       }
-//     });
-
-//     contact.onConnected(() => {
-//       console.log('Call connected!');
-//       this.ngZone.run(() => {
-//         this.callState = 'Connected';
-//       });
-//     });
-
-//     contact.onEnded(() => {
-//       console.log(' Call ended');
-//       this.ngZone.run(() => {
-//         this.callState = '';
-//         this.incomingContact = null;
-//       });
-//     });
-//   });
+// get showIncomingControls() {
+//   return this.callState === 'Ringing' && this.incomingContact;
 // }
 
 listenForIncomingCalls() {
   connect.contact((contact: any) => {
 
     if (contact.getType() !== connect.ContactType.VOICE) return;
+
 
     contact.onConnecting(() => {
       console.log('Incoming call...');
@@ -357,21 +265,29 @@ listenForIncomingCalls() {
     contact.onAccepted(() => {
       console.log('Call accepted');
       this.callState = 'Connected';
+       this.currentContact = contact;
     });
 
     contact.onConnected(() => {
       console.log(' Media connected');
+      this.currentContact = contact;
     });
 
     contact.onEnded(() => {
       console.log(' Call ended');
       this.callState = '';
       this.incomingContact = null;
+      this.currentContact = null;
     });
   });
 }
 
 
+endCall(): void {
+  if (!this.currentContact) return;
+  this.currentContact.getAgentConnection().destroy();
+  console.log('Call ended by agent');
+}
 
   acceptCall() : void {
     console.log("Call accepted")
@@ -384,8 +300,10 @@ listenForIncomingCalls() {
   rejectCall() : void {
         console.log("Call Rejected")
 
-    if (!this.incomingContact) return;
-  this.incomingContact.reject();
+    // if (!this.incomingContact) return;
+    //  this.incomingContact.getAgentConnection().destroy();
+  console.log('Call ended by agent');
+   this.incomingContact.reject();
     // this.incomingContact?.reject();
     // this.callState = '';
     // this.incomingContact = null;
@@ -395,14 +313,42 @@ listenForIncomingCalls() {
     this.showDialPad = !this.showDialPad;
   }
 
+
+  sendDTMF(digit: string): void {
+  if (!this.currentContact) {
+    console.error('No active call to send DTMF');
+    return;
+  }
+
+  this.currentContact.sendDigits(digit, {
+    success: () => console.log('DTMF sent:', digit),
+    failure: (err: any) => console.error('DTMF failed:', err)
+  });
+}
+
   dial(num: string) {
+    if (this.callState === 'Connected' && this.currentContact) {
+    this.sendDTMF(num);
+  } else {
     this.dialedNumber += num;
   }
+}
 
   clearNumber() {
     this.dialedNumber = '';
   }
+  onPaste(event: ClipboardEvent) {
+  const pastedText = event.clipboardData?.getData('text') || '';
+  const filteredText = pastedText.replace(/[^0-9+#]/g, '');
+  this.dialedNumber = (this.dialedNumber || '') + filteredText;
+  event.preventDefault();
+}
 
+
+  backspace(){
+    this.dialedNumber = this.dialedNumber.slice(0,-1);
+    console.log("backspace clicked");
+  }
   makeCall() {
 
     if (!this.agentObj) {
@@ -414,14 +360,24 @@ listenForIncomingCalls() {
     console.error('No number to dial');
     return;
   }
+   if (this.agentObj.getState().name !== 'Available') {
+    alert('Set status to Available before calling');
+    return;
+  }
 
   console.log('Attempting to call:', this.dialedNumber);
 
   const endpoint = connect.Endpoint.byPhoneNumber(this.dialedNumber);
+  var agent = new connect.Agent();
+  var queueArn = "arn:aws:connect:eu-west-2:547576598746:instance/e5becbb8-c2f7-40c8-aec4-d40f0e6ff035/queue/e33104db-9590-4de1-b604-fe91987715b4";
+
   this.agentObj.connect(endpoint, {
+      queueARN: queueArn,
     success: () => {
       console.log('Call initiated successfully to:', this.dialedNumber);
       this.showDialPad = false;
+      this.clearNumber();
+
     },
      failure: (err: any) => {
       console.error('Call failed:', err);
@@ -429,49 +385,5 @@ listenForIncomingCalls() {
     }
   });
 
-  this.clearNumber();
-    // if (!this.agentObj || !this.dialedNumber) return;
-
-    // const endpoint = connect.Endpoint.byPhoneNumber(this.dialedNumber);
-    // this.agentObj.connect(endpoint, {
-    //   success: () => console.log('Calling', this.dialedNumber),
-    //   failure: (err: any) => console.error('Call failed', err)
-    // });
-
-    // this.clearNumber();
   }
-//  listenForIncomingCalls(): void {
-//     if (typeof connect === 'undefined') {
-//       console.warn("Connect not loaded");
-//       return;
-//     }
-
-//     connect.contact((contact: any) => {
-//       // Only handle voice calls
-//       if (contact.getType() === connect.ContactType.VOICE) {
-//         console.log("Incoming call detected:", contact.getContactId());
-//         this.incomingContact = contact; // store contact for UI
-//       }
-//     });
-//   }
-
-//   // Accept the incoming call
-//   acceptCall(): void {
-//     if (!this.incomingContact) return;
-
-//     this.incomingContact.accept(() => {
-//       console.log("Call accepted:", this.incomingContact.getContactId());
-//       this.incomingContact = null; // reset after accept
-//     });
-//   }
-
-//   // Reject the incoming call
-//   rejectCall(): void {
-//     if (!this.incomingContact) return;
-
-//     this.incomingContact.reject(() => {
-//       console.log("Call rejected:", this.incomingContact.getContactId());
-//       this.incomingContact = null; // reset after reject
-//     });
-//   }
 }

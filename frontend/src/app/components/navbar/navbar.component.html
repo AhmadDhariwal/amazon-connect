@@ -11,8 +11,8 @@
       <select [(ngModel)]="agentStatus" (change)="updateStatus(agentStatus)">
         <option value="Available">Available</option>
         <option value="Busy">Busy</option>
-        <option value="Break">Break</option>
-        <option value="Lunch">Lunch Break</option>
+        <!-- <option value="Break">Break</option>
+        <option value="Lunch">Lunch Break</option> -->
       </select>
     </div>
    <!-- Add this button temporarily for testing
@@ -25,17 +25,33 @@ Make sure this shows current state
   Debug: callState = "{{ callState }}" | hasIncomingContact = {{ !!incomingContact }}
 </div> -->
 
-    <div class="call-controls" *ngIf="callState === 'Ringing'"  >
+    <!-- <div class="call-controls" *ngIf="callState === 'Ringing'"  >
       <button class="accept-btn" (click)="acceptCall()">Accept</button>
       <button class="reject-btn"   (click)="rejectCall()">Reject</button>
-    </div>
+    </div> -->
+
+<div class="call-controls" *ngIf="callState === 'Ringing'">
+  <button class="accept-btn" (click)="acceptCall()">Accept</button>
+  <button class="reject-btn" (click)="rejectCall()">Reject</button>
+</div>
+
+
+<div class="call-controls" *ngIf="callState === 'Connected'">
+  <button class="end-call-btn" (click)="endCall()">End Call</button>
+</div>
+
   </div>
 
   <div class="nav-right">
     <div class="dialpad-wrapper">
       <button class="dialpad-toggle" (click)="toggleDialPad()">Dialed Pad</button>
       <div class="dialpad" *ngIf="showDialPad">
-        <div class="dial-display">{{ dialedNumber || 'Enter number...' }}</div>
+        <div class="dial-display">
+  <input type="text" [(ngModel)]="dialedNumber" placeholder="Enter number..." class="dial-input" (paste)="onPaste($event)">
+  <button class="backspace" (click)="backspace()"> ⌫</button>
+</div>
+
+        <!-- <div class="dial-display">{{ dialedNumber || 'Enter number...' }} <button class="backspace" (click)="backspace()"> ⌫</button></div> -->
         <div class="dial-actions">
           <button class="call-btn" (click)="makeCall()" [disabled]="!dialedNumber">Call</button>
           <button class="clear-btn" (click)="clearNumber()">Clear</button>
