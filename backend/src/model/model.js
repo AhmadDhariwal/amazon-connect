@@ -7,7 +7,7 @@ const connectdb = async () => {
             host: "localhost",
             user: "root",
             password: "789456Ahmad@",
-            database: "mysql" // uncomment when you have a specific database
+            database: "mysql" 
         });
         
         console.log("Connected to MySQL database");
@@ -27,7 +27,6 @@ const createitem = async(data) => {
     let connection;
     try{
         connection = await connectdb();
-       // console.log("Connected to MySQL database");
     const [result] = await connection.query(
         'INSERT INTO item(name,price,category,quantity) VALUES (?,?,?,?)',[data.name,data.price,data.category,data.quantity]
     );
@@ -87,7 +86,26 @@ const updatebyid = async (id,data) => {
         }
     }
 }
-
+const getbyid = async(id) => {
+    let connection;
+    try{
+        connection= await connectdb();
+        const [result] = await connection.query(
+            'SELECT * FROM item where id=?',[id]
+        );
+        console.log("Item is",result);
+        return result;
+    }
+    catch(error){
+        console.error("Error getting item",error.message);
+        return {success:false,error : error.message};
+    }
+    finally{
+        if(connection){
+              await connection.end();
+        }
+    }
+}
 const deletebyid = async (id) => {
     let connection;
     try{
@@ -111,4 +129,4 @@ const deletebyid = async (id) => {
 // Initialize database connection
 connectdb().catch(console.error);
 
-module.exports = { connectdb,createitem,getitems,updatebyid,deletebyid };
+module.exports = { connectdb,createitem,getitems,updatebyid,getbyid,deletebyid };
