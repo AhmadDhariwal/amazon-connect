@@ -1,7 +1,7 @@
 const express = require('express');
+const mysql = require('./src/model/model');
 const path = require('path');
 const route = require('./src/routes/route');
-const amazonuserschema = require('./src/model/model')
 
 
 const app = express();
