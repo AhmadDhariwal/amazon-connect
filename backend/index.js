@@ -7,11 +7,13 @@ const route = require('./src/routes/route');
 const app = express();
 const PORT = 3001;
 
+app.use(express.json());
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-app.use('/',route);
+app.use('/item',route);
 
 
 
